@@ -39,6 +39,17 @@ ubuntu@VM8889-huyangjia:~/Downloads/test$ ../la32r-QEMU-x86_64-ubuntu-22.04/qemu
 Hello, World!
 ```
 
+## Appendix
+
+还需要一些库：
+
+```shell
+sudo apt install libsnappy1v5
+sudo apt install liblzo2-2
+sudo apt install libvdeplug2
+sudo apt install libsdl2-image-2.0-0
+```
+
 ## end
 
 到目前为止，已经完成了交叉编译工具链和QEMU模拟器的配置，可以进行后续的实验了。
