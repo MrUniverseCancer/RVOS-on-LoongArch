@@ -27,7 +27,7 @@ OBJS_ASM := $(addprefix ${OUTPUT_PATH}/, $(patsubst %.S, %.o, ${SRCS_ASM}))
 OBJS_C   := $(addprefix $(OUTPUT_PATH)/, $(patsubst %.c, %.o, ${SRCS_C}))
 OBJS = ${OBJS_ASM} ${OBJS_C}
 
-ELF = ${OUTPUT_PATH}/os
+ELF = ${OUTPUT_PATH}/os.elf
 BIN = ${OUTPUT_PATH}/os.bin
 
 
@@ -60,16 +60,16 @@ ${OUTPUT_PATH}/%.o : %.S
 
 run: all
 	# ${QEMU} -M ? | grep virt >/dev/null || exit
-	echo "Press Ctrl-A and then X to exit QEMU"
-	echo "------------------------------------"
+	@echo "Press Ctrl-A and then X to exit QEMU"
+	@echo "------------------------------------"
 	${QEMU} ${QFLAGS} -kernel ${ELF}
 
 .PHONY : debug
 debug: all
 	@echo "Press Ctrl-C and then input 'quit' to exit GDB and QEMU"
 	@echo "-------------------------------------------------------"
-	@${QEMU} ${QFLAGS} -kernel ${ELF} -s -S &
-	@${GDB} ${ELF} -q -x ../gdbinit
+	${QEMU} ${QFLAGS} -kernel ${ELF} -s -S &
+	${GDB} ${ELF} -q -x ../gdbinit
 
 .PHONY : code
 code: all
