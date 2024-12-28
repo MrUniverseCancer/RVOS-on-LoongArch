@@ -6,13 +6,13 @@
 include ../defines.mk
 DEFS +=
 
-CROSS_COMPILE = loongarch64-linux-gnu-
+CROSS_COMPILE = ../loongson-gnu-toolchain-8.3-x86_64-loongarch32r-linux-gnusf-v2.0/bin/loongarch32r-linux-gnusf-
 CFLAGS += -nostdlib -O2 -g3 -Wall -march=loongarch64 -mabi=lp64s -ffreestanding -fno-common -I. -fno-stack-protector -fno-pie -no-pie
 
-QEMU = qemu-system-loongarch64
+QEMU = qemu-system-loongarch32
 QFLAGS = -nographic -smp 1 -machine virt -m 4G -vga none -cpu la464
 
-GDB = loongarch64-linux-gnu-gdb
+GDB = loongarch32r-linux-gnusf-gdb
 CC = ${CROSS_COMPILE}gcc
 LD = ${CROSS_COMPILE}ld
 OBJCOPY = ${CROSS_COMPILE}objcopy
