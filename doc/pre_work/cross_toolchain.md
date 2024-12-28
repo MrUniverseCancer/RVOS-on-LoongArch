@@ -26,7 +26,7 @@ tar -xvf loongson-gnu-toolchain-8.3-x86_64-loongarch64-linux-gnu-rc1.6.tar
 
 ### 2. 测试是否可以使用
 
-loongson-gnu-toolchain-8.3-x86_64-loongarch32r-linux-gnusf-v2.0解压后与test在同一目录下
+loongson-gnu-toolchain-8.3-x86_64-loongarch32r-linux-gnusf-v2.0解压后与test在**同一目录**下
 
 在test目录下写一个简单的C程序
 
