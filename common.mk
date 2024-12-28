@@ -7,10 +7,10 @@ include ../defines.mk
 DEFS +=
 
 CROSS_COMPILE = ../../loongson-gnu-toolchain-8.3-x86_64-loongarch32r-linux-gnusf-v2.0/bin/loongarch32r-linux-gnusf-
-CFLAGS += -nostdlib -O2 -g3 -Wall -march=loongarch32 -mabi=ilp32 -ffreestanding -fno-common -I. -fno-stack-protector -fno-pie -no-pie
+CFLAGS += -nostdlib -O2 -g3 -Wall -march=loongarch32 -mabi=ilp32d -ffreestanding -fno-common -I. -fno-stack-protector -fno-pie -no-pie
 
 QEMU = ../../la32r-QEMU-x86_64-ubuntu-22.04/qemu-system-loongarch32
-QFLAGS = -nographic -smp 1 -machine virt -m 4G -vga none -cpu la464
+QFLAGS = -nographic -smp 1 -machine ls3a5k32 -m 4G -vga none 
 
 GDB = ${CROSS_COMPILE}gdb
 CC = ${CROSS_COMPILE}gcc
@@ -59,10 +59,10 @@ ${OUTPUT_PATH}/%.o : %.S
 	${CC} ${DEFS} ${CFLAGS} -c -o $@ $<
 
 run: all
-	@${QEMU} -M ? | grep virt >/dev/null || exit
-	@echo "Press Ctrl-A and then X to exit QEMU"
-	@echo "------------------------------------"
-	@${QEMU} ${QFLAGS} -kernel ${ELF}
+	# ${QEMU} -M ? | grep virt >/dev/null || exit
+	echo "Press Ctrl-A and then X to exit QEMU"
+	echo "------------------------------------"
+	${QEMU} ${QFLAGS} -kernel ${ELF}
 
 .PHONY : debug
 debug: all
