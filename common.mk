@@ -7,10 +7,14 @@ include ../defines.mk
 DEFS +=
 
 CROSS_COMPILE = ../../loongson-gnu-toolchain-8.3-x86_64-loongarch32r-linux-gnusf-v2.0/bin/loongarch32r-linux-gnusf-
+# CROSS_COMPILE = ../../loongson-gnu-toolchain-8.3-x86_64-loongarch64-linux-gnu-rc1.6/bin/loongarch64-linux-gnu-
 CFLAGS += -nostdlib -O2 -g3 -Wall -march=loongarch32 -mabi=ilp32d -ffreestanding -fno-common -I. -fno-stack-protector -fno-pie -no-pie
+# CFLAGS += -nostdlib -O2 -g3 -Wall -march=la464 -mabi=lp64d -ffreestanding -fno-common -I. -fno-stack-protector -fno-pie -no-pie
 
 QEMU = ../../la32r-QEMU-x86_64-ubuntu-22.04/qemu-system-loongarch32
-QFLAGS = -nographic -smp 1 -machine ls3a5k32 -m 4G -vga none 
+# QEMU = qemu-system-loongarch64 
+QFLAGS = -nographic -smp 1 -machine ls3a5k32 -m 4G -vga none
+# QFLAGS = -nographic -smp 1 -cpu la464 -machine virt
 
 GDB = ${CROSS_COMPILE}gdb
 CC = ${CROSS_COMPILE}gcc
@@ -63,6 +67,7 @@ run: all
 	@echo "Press Ctrl-A and then X to exit QEMU"
 	@echo "------------------------------------"
 	${QEMU} ${QFLAGS} -kernel ${ELF}
+	@${RM} ${OUTPUT_PATH}
 
 .PHONY : debug
 debug: all
@@ -78,3 +83,4 @@ code: all
 .PHONY : clean
 clean:
 	@${RM} ${OUTPUT_PATH}
+	@../tool.sh

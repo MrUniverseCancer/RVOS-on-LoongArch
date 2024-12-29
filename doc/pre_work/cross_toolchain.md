@@ -10,7 +10,7 @@
 解压缩到指定目录
 
 ```shell
-tar -xvf loongson-gnu-toolchain-8.3-x86_64-loongarch64-linux-gnu-rc1.6.tar
+tar -xvf loongson-gnu-toolchain-8.3-x86_64-loongarch64-linux-gnu-rc1.6.tar.xz
 ```
 
 ### 2. 测试是否可以使用
