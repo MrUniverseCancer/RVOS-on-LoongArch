@@ -34,7 +34,7 @@ extern void uart_puts(char *s);
 
 void start_kernel(void *a0, void *a1, void *a2)
 {
-	// uart_init();
+	uart_init();
 	uart_puts("Hello, RVOS!11\n");
 
 	while (1) {}; // stop here!
