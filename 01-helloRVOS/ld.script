@@ -3,7 +3,7 @@ ENTRY( start_kernel )
 
 SECTIONS
 {
-  . = 0x80000000;
+  . = 0xa0300000;
 
   .text : {
     *(.text .text.*)
