@@ -1,4 +1,4 @@
-LDFLAGS = -Ttext=0x80000000
+LDFLAGS = -T ld.script
 SRCS_ASM = \
 	start.S \
 
