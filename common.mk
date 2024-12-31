@@ -15,7 +15,7 @@ QEMU = ../../la32r-QEMU-x86_64-ubuntu-22.04/qemu-system-loongarch32
 # QEMU = qemu-system-loongarch64 
 QFLAGS = -nographic -smp 1 -machine ls3a5k32 -m 4G -vga none
 # QFLAGS = -nographic -smp 1 -cpu la464 -machine virt
-
+# GDB = loongarch64-unknown-linux-gnu-gdb
 GDB = ${CROSS_COMPILE}gdb
 CC = ${CROSS_COMPILE}gcc
 LD = ${CROSS_COMPILE}ld
