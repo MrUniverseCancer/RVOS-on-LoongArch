@@ -1,0 +1,831 @@
+
+out/os.elf:     file format elf32-loongarch
+
+
+Disassembly of section .text:
+
+80000000 <_start>:
+	.global	_start
+
+	.text
+_start:
+
+	la.local $t0, stacks
+80000000:	1c00000c 	pcaddu12i	$r12,0
+80000004:	0280718c 	addi.w	$r12,$r12,28(0x1c)
+	la.local $t1, STACK_SIZE
+80000008:	1c00002d 	pcaddu12i	$r13,1(0x1)
+8000000c:	02bfe1ad 	addi.w	$r13,$r13,-8(0xff8)
+	ld.w     $t1, $t1, 0
+80000010:	288001ad 	ld.w	$r13,$r13,0
+	add.w   $sp, $t0, $t1
+80000014:	00103583 	add.w	$r3,$r12,$r13
+					# set the initial stack pointer
+					# to the end of the first stack space
+	
+	# la.local $t0, start_kernel
+	# jr $t0
+	b start_kernel
+80000018:	50040800 	b	1032(0x408) # 80000420 <start_kernel>
+
+8000001c <stacks>:
+	...
+8000041c:	03400000 	andi	$r0,$r0,0x0
+
+80000420 <start_kernel>:
+#include "os.h"
+
+int i = 0;
+void start_kernel(void)
+{	
+80000420:	02bfc063 	addi.w	$r3,$r3,-16(0xff0)
+80000424:	29803061 	st.w	$r1,$r3,12(0xc)
+80000428:	29802076 	st.w	$r22,$r3,8(0x8)
+8000042c:	02804076 	addi.w	$r22,$r3,16(0x10)
+	// uart_puts("Hello, RVOS!1\n");
+	// int i = 0;
+	// printf("Hello, RVOS!22\n");
+	// printf("Hello, RVOS!333\n");
+	// printf("11111111111\n");
+	printf("bbbb%cbbbbb\n", 'a');
+80000430:	02818405 	addi.w	$r5,$r0,97(0x61)
+80000434:	1c000024 	pcaddu12i	$r4,1(0x1)
+80000438:	02a23084 	addi.w	$r4,$r4,-1908(0x88c)
+8000043c:	5407c000 	bl	1984(0x7c0) # 80000bfc <printf>
+	printf("%d\n", 123);
+80000440:	0281ec05 	addi.w	$r5,$r0,123(0x7b)
+80000444:	1c000024 	pcaddu12i	$r4,1(0x1)
+80000448:	02a23084 	addi.w	$r4,$r4,-1908(0x88c)
+8000044c:	5407b000 	bl	1968(0x7b0) # 80000bfc <printf>
+	// while( i < 10){
+	// 	printf("%d", i);
+	// 	i++;
+	// }
+
+	while (1) {}; // stop here!
+80000450:	50000000 	b	0 # 80000450 <start_kernel+0x30>
+
+80000454 <io_readb>:
+
+#define uart_read_reg(reg) io_readb(UART0 + reg)
+#define uart_write_reg(reg, v) io_writeb(UART0 + reg, v)
+
+static char io_readb(unsigned long addr)
+{
+80000454:	02bf8063 	addi.w	$r3,$r3,-32(0xfe0)
+80000458:	29807076 	st.w	$r22,$r3,28(0x1c)
+8000045c:	02808076 	addi.w	$r22,$r3,32(0x20)
+80000460:	29bfb2c4 	st.w	$r4,$r22,-20(0xfec)
+    return *(volatile char*)addr;
+80000464:	28bfb2cc 	ld.w	$r12,$r22,-20(0xfec)
+80000468:	2a00018c 	ld.bu	$r12,$r12,0
+8000046c:	00005d8c 	ext.w.b	$r12,$r12
+}
+80000470:	00150184 	move	$r4,$r12
+80000474:	28807076 	ld.w	$r22,$r3,28(0x1c)
+80000478:	02808063 	addi.w	$r3,$r3,32(0x20)
+8000047c:	4c000020 	jirl	$r0,$r1,0
+
+80000480 <io_writeb>:
+
+static void io_writeb(unsigned long addr, char c)
+{
+80000480:	02bf8063 	addi.w	$r3,$r3,-32(0xfe0)
+80000484:	29807076 	st.w	$r22,$r3,28(0x1c)
+80000488:	02808076 	addi.w	$r22,$r3,32(0x20)
+8000048c:	29bfb2c4 	st.w	$r4,$r22,-20(0xfec)
+80000490:	001500ac 	move	$r12,$r5
+80000494:	293faecc 	st.b	$r12,$r22,-21(0xfeb)
+    *(char*)addr = c;
+80000498:	28bfb2cc 	ld.w	$r12,$r22,-20(0xfec)
+8000049c:	2a3faecd 	ld.bu	$r13,$r22,-21(0xfeb)
+800004a0:	2900018d 	st.b	$r13,$r12,0
+}
+800004a4:	03400000 	andi	$r0,$r0,0x0
+800004a8:	28807076 	ld.w	$r22,$r3,28(0x1c)
+800004ac:	02808063 	addi.w	$r3,$r3,32(0x20)
+800004b0:	4c000020 	jirl	$r0,$r1,0
+
+800004b4 <uart_init>:
+
+
+void uart_init()
+{
+800004b4:	02bf8063 	addi.w	$r3,$r3,-32(0xfe0)
+800004b8:	29807061 	st.w	$r1,$r3,28(0x1c)
+800004bc:	29806076 	st.w	$r22,$r3,24(0x18)
+800004c0:	02808076 	addi.w	$r22,$r3,32(0x20)
+	/* disable interrupts. */
+	uart_write_reg(IER, 0x00);
+800004c4:	00150005 	move	$r5,$r0
+800004c8:	143fc00c 	lu12i.w	$r12,130560(0x1fe00)
+800004cc:	03878584 	ori	$r4,$r12,0x1e1
+800004d0:	57ffb3ff 	bl	-80(0xfffffb0) # 80000480 <io_writeb>
+	 * We use 38.4K when 1.8432 MHZ crystal, so the corresponding value is 3.
+	 * And due to the divisor register is two bytes (16 bits), so we need to
+	 * split the value of 3(0x0003) into two bytes, DLL stores the low byte,
+	 * DLM stores the high byte.
+	 */
+	uint8_t lcr = uart_read_reg(LCR);
+800004d4:	143fc00c 	lu12i.w	$r12,130560(0x1fe00)
+800004d8:	03878d84 	ori	$r4,$r12,0x1e3
+800004dc:	57ff7bff 	bl	-136(0xfffff78) # 80000454 <io_readb>
+800004e0:	0015008c 	move	$r12,$r4
+800004e4:	293fbecc 	st.b	$r12,$r22,-17(0xfef)
+	uart_write_reg(LCR, lcr | (1 << 7));
+800004e8:	2a3fbecd 	ld.bu	$r13,$r22,-17(0xfef)
+800004ec:	02be000c 	addi.w	$r12,$r0,-128(0xf80)
+800004f0:	001531ac 	or	$r12,$r13,$r12
+800004f4:	0067818c 	bstrpick.w	$r12,$r12,0x7,0x0
+800004f8:	00005d8c 	ext.w.b	$r12,$r12
+800004fc:	00150185 	move	$r5,$r12
+80000500:	143fc00c 	lu12i.w	$r12,130560(0x1fe00)
+80000504:	03878d84 	ori	$r4,$r12,0x1e3
+80000508:	57ff7bff 	bl	-136(0xfffff78) # 80000480 <io_writeb>
+	uart_write_reg(DLL, 0x03);
+8000050c:	02800c05 	addi.w	$r5,$r0,3(0x3)
+80000510:	143fc00c 	lu12i.w	$r12,130560(0x1fe00)
+80000514:	03878184 	ori	$r4,$r12,0x1e0
+80000518:	57ff6bff 	bl	-152(0xfffff68) # 80000480 <io_writeb>
+	uart_write_reg(DLM, 0x00);
+8000051c:	00150005 	move	$r5,$r0
+80000520:	143fc00c 	lu12i.w	$r12,130560(0x1fe00)
+80000524:	03878584 	ori	$r4,$r12,0x1e1
+80000528:	57ff5bff 	bl	-168(0xfffff58) # 80000480 <io_writeb>
+	 * - number of stop bits：1 bit when word length is 8 bits
+	 * - no parity
+	 * - no break control
+	 * - disabled baud latch
+	 */
+	lcr = 0;
+8000052c:	293fbec0 	st.b	$r0,$r22,-17(0xfef)
+	uart_write_reg(LCR, lcr | (3 << 0));
+80000530:	2a3fbecc 	ld.bu	$r12,$r22,-17(0xfef)
+80000534:	03800d8c 	ori	$r12,$r12,0x3
+80000538:	0067818c 	bstrpick.w	$r12,$r12,0x7,0x0
+8000053c:	00005d8c 	ext.w.b	$r12,$r12
+80000540:	00150185 	move	$r5,$r12
+80000544:	143fc00c 	lu12i.w	$r12,130560(0x1fe00)
+80000548:	03878d84 	ori	$r4,$r12,0x1e3
+8000054c:	57ff37ff 	bl	-204(0xfffff34) # 80000480 <io_writeb>
+}
+80000550:	03400000 	andi	$r0,$r0,0x0
+80000554:	28807061 	ld.w	$r1,$r3,28(0x1c)
+80000558:	28806076 	ld.w	$r22,$r3,24(0x18)
+8000055c:	02808063 	addi.w	$r3,$r3,32(0x20)
+80000560:	4c000020 	jirl	$r0,$r1,0
+
+80000564 <uart_putc>:
+
+int uart_putc(char ch)
+{
+80000564:	02bf8063 	addi.w	$r3,$r3,-32(0xfe0)
+80000568:	29807061 	st.w	$r1,$r3,28(0x1c)
+8000056c:	29806076 	st.w	$r22,$r3,24(0x18)
+80000570:	02808076 	addi.w	$r22,$r3,32(0x20)
+80000574:	0015008c 	move	$r12,$r4
+80000578:	293fbecc 	st.b	$r12,$r22,-17(0xfef)
+	while ((uart_read_reg(LSR) & LSR_TX_IDLE) == 0);
+8000057c:	03400000 	andi	$r0,$r0,0x0
+80000580:	143fc00c 	lu12i.w	$r12,130560(0x1fe00)
+80000584:	03879584 	ori	$r4,$r12,0x1e5
+80000588:	57fecfff 	bl	-308(0xffffecc) # 80000454 <io_readb>
+8000058c:	0015008c 	move	$r12,$r4
+80000590:	0340818c 	andi	$r12,$r12,0x20
+80000594:	43ffed9f 	beqz	$r12,-20(0x7fffec) # 80000580 <uart_putc+0x1c>
+	uart_write_reg(THR, ch);
+80000598:	283fbecc 	ld.b	$r12,$r22,-17(0xfef)
+8000059c:	00150185 	move	$r5,$r12
+800005a0:	143fc00c 	lu12i.w	$r12,130560(0x1fe00)
+800005a4:	03878184 	ori	$r4,$r12,0x1e0
+800005a8:	57fedbff 	bl	-296(0xffffed8) # 80000480 <io_writeb>
+
+	return (int)ch;
+800005ac:	283fbecc 	ld.b	$r12,$r22,-17(0xfef)
+}
+800005b0:	00150184 	move	$r4,$r12
+800005b4:	28807061 	ld.w	$r1,$r3,28(0x1c)
+800005b8:	28806076 	ld.w	$r22,$r3,24(0x18)
+800005bc:	02808063 	addi.w	$r3,$r3,32(0x20)
+800005c0:	4c000020 	jirl	$r0,$r1,0
+
+800005c4 <uart_puts>:
+
+void uart_puts(char *s)
+{
+800005c4:	02bf8063 	addi.w	$r3,$r3,-32(0xfe0)
+800005c8:	29807061 	st.w	$r1,$r3,28(0x1c)
+800005cc:	29806076 	st.w	$r22,$r3,24(0x18)
+800005d0:	02808076 	addi.w	$r22,$r3,32(0x20)
+800005d4:	29bfb2c4 	st.w	$r4,$r22,-20(0xfec)
+	while (*s) {
+800005d8:	50001c00 	b	28(0x1c) # 800005f4 <uart_puts+0x30>
+		uart_putc(*s++);
+800005dc:	28bfb2cc 	ld.w	$r12,$r22,-20(0xfec)
+800005e0:	0280058d 	addi.w	$r13,$r12,1(0x1)
+800005e4:	29bfb2cd 	st.w	$r13,$r22,-20(0xfec)
+800005e8:	2800018c 	ld.b	$r12,$r12,0
+800005ec:	00150184 	move	$r4,$r12
+800005f0:	57ff77ff 	bl	-140(0xfffff74) # 80000564 <uart_putc>
+	while (*s) {
+800005f4:	28bfb2cc 	ld.w	$r12,$r22,-20(0xfec)
+800005f8:	2800018c 	ld.b	$r12,$r12,0
+800005fc:	47ffe19f 	bnez	$r12,-32(0x7fffe0) # 800005dc <uart_puts+0x18>
+	}
+}
+80000600:	03400000 	andi	$r0,$r0,0x0
+80000604:	28807061 	ld.w	$r1,$r3,28(0x1c)
+80000608:	28806076 	ld.w	$r22,$r3,24(0x18)
+8000060c:	02808063 	addi.w	$r3,$r3,32(0x20)
+80000610:	4c000020 	jirl	$r0,$r1,0
+
+80000614 <_vsnprintf>:
+/*
+ * ref: https://github.com/cccriscv/mini-riscv-os/blob/master/05-Preemptive/lib.c
+ */
+
+static int _vsnprintf(char * out, size_t n, const char* s, va_list vl)
+{
+80000614:	02bec063 	addi.w	$r3,$r3,-80(0xfb0)
+80000618:	29813061 	st.w	$r1,$r3,76(0x4c)
+8000061c:	29812076 	st.w	$r22,$r3,72(0x48)
+80000620:	02814076 	addi.w	$r22,$r3,80(0x50)
+80000624:	29bef2c4 	st.w	$r4,$r22,-68(0xfbc)
+80000628:	29bee2c5 	st.w	$r5,$r22,-72(0xfb8)
+8000062c:	29bed2c6 	st.w	$r6,$r22,-76(0xfb4)
+80000630:	29bec2c7 	st.w	$r7,$r22,-80(0xfb0)
+	int format = 0;
+80000634:	29bfb2c0 	st.w	$r0,$r22,-20(0xfec)
+	int longarg = 0;
+80000638:	29bfa2c0 	st.w	$r0,$r22,-24(0xfe8)
+	size_t pos = 0;
+8000063c:	29bf92c0 	st.w	$r0,$r22,-28(0xfe4)
+	for (; *s; s++) {
+80000640:	50045000 	b	1104(0x450) # 80000a90 <_vsnprintf+0x47c>
+		if (format) {
+80000644:	28bfb2cc 	ld.w	$r12,$r22,-20(0xfec)
+80000648:	4003dd80 	beqz	$r12,988(0x3dc) # 80000a24 <_vsnprintf+0x410>
+			uart_puts("adskufhbesr\n");
+8000064c:	1c000004 	pcaddu12i	$r4,0
+80000650:	029a2084 	addi.w	$r4,$r4,1672(0x688)
+80000654:	57ff73ff 	bl	-144(0xfffff70) # 800005c4 <uart_puts>
+			switch (*s) {
+80000658:	28bed2cc 	ld.w	$r12,$r22,-76(0xfb4)
+8000065c:	2800018c 	ld.b	$r12,$r12,0
+80000660:	02be758c 	addi.w	$r12,$r12,-99(0xf9d)
+80000664:	0280540d 	addi.w	$r13,$r0,21(0x15)
+80000668:	6803a9ac 	bltu	$r13,$r12,936(0x3a8) # 80000a10 <_vsnprintf+0x3fc>
+8000066c:	0040898d 	slli.w	$r13,$r12,0x2
+80000670:	1c00000c 	pcaddu12i	$r12,0
+80000674:	029ae18c 	addi.w	$r12,$r12,1720(0x6b8)
+80000678:	001031ac 	add.w	$r12,$r13,$r12
+8000067c:	2880018c 	ld.w	$r12,$r12,0
+80000680:	4c000180 	jirl	$r0,$r12,0
+			case 'c':{
+				// uart_puts("get %% d here\n");
+				if (out && pos < n) {
+80000684:	28bef2cc 	ld.w	$r12,$r22,-68(0xfbc)
+80000688:	40003580 	beqz	$r12,52(0x34) # 800006bc <_vsnprintf+0xa8>
+8000068c:	28bf92cd 	ld.w	$r13,$r22,-28(0xfe4)
+80000690:	28bee2cc 	ld.w	$r12,$r22,-72(0xfb8)
+80000694:	6c0029ac 	bgeu	$r13,$r12,40(0x28) # 800006bc <_vsnprintf+0xa8>
+					out[pos] = (char)va_arg(vl,int);
+80000698:	28bec2cc 	ld.w	$r12,$r22,-80(0xfb0)
+8000069c:	0280118d 	addi.w	$r13,$r12,4(0x4)
+800006a0:	29bec2cd 	st.w	$r13,$r22,-80(0xfb0)
+800006a4:	2880018e 	ld.w	$r14,$r12,0
+800006a8:	28bef2cd 	ld.w	$r13,$r22,-68(0xfbc)
+800006ac:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+800006b0:	001031ac 	add.w	$r12,$r13,$r12
+800006b4:	00005dcd 	ext.w.b	$r13,$r14
+800006b8:	2900018d 	st.b	$r13,$r12,0
+				}
+				pos++;
+800006bc:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+800006c0:	0280058c 	addi.w	$r12,$r12,1(0x1)
+800006c4:	29bf92cc 	st.w	$r12,$r22,-28(0xfe4)
+				longarg = 0;
+800006c8:	29bfa2c0 	st.w	$r0,$r22,-24(0xfe8)
+				format = 0;
+800006cc:	29bfb2c0 	st.w	$r0,$r22,-20(0xfec)
+				break;
+800006d0:	5003b400 	b	948(0x3b4) # 80000a84 <_vsnprintf+0x470>
+				}
+			case 'd': {
+				// long num = 123;
+				uart_puts("get %% d here\n");
+800006d4:	1c000004 	pcaddu12i	$r4,0
+800006d8:	02984084 	addi.w	$r4,$r4,1552(0x610)
+800006dc:	57feebff 	bl	-280(0xffffee8) # 800005c4 <uart_puts>
+				long num = longarg ? va_arg(vl, long) : va_arg(vl, int);
+800006e0:	28bfa2cc 	ld.w	$r12,$r22,-24(0xfe8)
+800006e4:	40001980 	beqz	$r12,24(0x18) # 800006fc <_vsnprintf+0xe8>
+800006e8:	28bec2cc 	ld.w	$r12,$r22,-80(0xfb0)
+800006ec:	0280118d 	addi.w	$r13,$r12,4(0x4)
+800006f0:	29bec2cd 	st.w	$r13,$r22,-80(0xfb0)
+800006f4:	2880018c 	ld.w	$r12,$r12,0
+800006f8:	50001400 	b	20(0x14) # 8000070c <_vsnprintf+0xf8>
+800006fc:	28bec2cc 	ld.w	$r12,$r22,-80(0xfb0)
+80000700:	0280118d 	addi.w	$r13,$r12,4(0x4)
+80000704:	29bec2cd 	st.w	$r13,$r22,-80(0xfb0)
+80000708:	2880018c 	ld.w	$r12,$r12,0
+8000070c:	29bf82cc 	st.w	$r12,$r22,-32(0xfe0)
+				if (num < 0) {
+80000710:	28bf82cc 	ld.w	$r12,$r22,-32(0xfe0)
+80000714:	64004580 	bge	$r12,$r0,68(0x44) # 80000758 <_vsnprintf+0x144>
+					num = -num;
+80000718:	28bf82cc 	ld.w	$r12,$r22,-32(0xfe0)
+8000071c:	0011300c 	sub.w	$r12,$r0,$r12
+80000720:	29bf82cc 	st.w	$r12,$r22,-32(0xfe0)
+					if (out && pos < n) {
+80000724:	28bef2cc 	ld.w	$r12,$r22,-68(0xfbc)
+80000728:	40002580 	beqz	$r12,36(0x24) # 8000074c <_vsnprintf+0x138>
+8000072c:	28bf92cd 	ld.w	$r13,$r22,-28(0xfe4)
+80000730:	28bee2cc 	ld.w	$r12,$r22,-72(0xfb8)
+80000734:	6c0019ac 	bgeu	$r13,$r12,24(0x18) # 8000074c <_vsnprintf+0x138>
+						out[pos] = '-';
+80000738:	28bef2cd 	ld.w	$r13,$r22,-68(0xfbc)
+8000073c:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+80000740:	001031ac 	add.w	$r12,$r13,$r12
+80000744:	0280b40d 	addi.w	$r13,$r0,45(0x2d)
+80000748:	2900018d 	st.b	$r13,$r12,0
+					}
+					pos++;
+8000074c:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+80000750:	0280058c 	addi.w	$r12,$r12,1(0x1)
+80000754:	29bf92cc 	st.w	$r12,$r22,-28(0xfe4)
+				}
+				long digits = 1;
+80000758:	0280040c 	addi.w	$r12,$r0,1(0x1)
+8000075c:	29bf72cc 	st.w	$r12,$r22,-36(0xfdc)
+				for (long nn = num; nn /= 10; digits++);
+80000760:	28bf82cc 	ld.w	$r12,$r22,-32(0xfe0)
+80000764:	29bf62cc 	st.w	$r12,$r22,-40(0xfd8)
+80000768:	50001000 	b	16(0x10) # 80000778 <_vsnprintf+0x164>
+8000076c:	28bf72cc 	ld.w	$r12,$r22,-36(0xfdc)
+80000770:	0280058c 	addi.w	$r12,$r12,1(0x1)
+80000774:	29bf72cc 	st.w	$r12,$r22,-36(0xfdc)
+80000778:	28bf62ce 	ld.w	$r14,$r22,-40(0xfd8)
+8000077c:	0280280d 	addi.w	$r13,$r0,10(0xa)
+80000780:	002035cc 	div.w	$r12,$r14,$r13
+80000784:	5c0009a0 	bne	$r13,$r0,8(0x8) # 8000078c <_vsnprintf+0x178>
+80000788:	002a0007 	break	0x7
+8000078c:	29bf62cc 	st.w	$r12,$r22,-40(0xfd8)
+80000790:	28bf62cc 	ld.w	$r12,$r22,-40(0xfd8)
+80000794:	47ffd99f 	bnez	$r12,-40(0x7fffd8) # 8000076c <_vsnprintf+0x158>
+				for (int i = digits-1; i >= 0; i--) {
+80000798:	28bf72cc 	ld.w	$r12,$r22,-36(0xfdc)
+8000079c:	02bffd8c 	addi.w	$r12,$r12,-1(0xfff)
+800007a0:	29bf52cc 	st.w	$r12,$r22,-44(0xfd4)
+800007a4:	50008000 	b	128(0x80) # 80000824 <_vsnprintf+0x210>
+					if (out && pos + i < n) {
+800007a8:	28bef2cc 	ld.w	$r12,$r22,-68(0xfbc)
+800007ac:	40005580 	beqz	$r12,84(0x54) # 80000800 <_vsnprintf+0x1ec>
+800007b0:	28bf52cd 	ld.w	$r13,$r22,-44(0xfd4)
+800007b4:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+800007b8:	001031ac 	add.w	$r12,$r13,$r12
+800007bc:	28bee2cd 	ld.w	$r13,$r22,-72(0xfb8)
+800007c0:	6c00418d 	bgeu	$r12,$r13,64(0x40) # 80000800 <_vsnprintf+0x1ec>
+						out[pos + i] = '0' + (num % 10);
+800007c4:	28bf82cd 	ld.w	$r13,$r22,-32(0xfe0)
+800007c8:	0280280c 	addi.w	$r12,$r0,10(0xa)
+800007cc:	0020b1ae 	mod.w	$r14,$r13,$r12
+800007d0:	5c000980 	bne	$r12,$r0,8(0x8) # 800007d8 <_vsnprintf+0x1c4>
+800007d4:	002a0007 	break	0x7
+800007d8:	006781cc 	bstrpick.w	$r12,$r14,0x7,0x0
+800007dc:	0280c18c 	addi.w	$r12,$r12,48(0x30)
+800007e0:	0067818e 	bstrpick.w	$r14,$r12,0x7,0x0
+800007e4:	28bf52cd 	ld.w	$r13,$r22,-44(0xfd4)
+800007e8:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+800007ec:	001031ac 	add.w	$r12,$r13,$r12
+800007f0:	28bef2cd 	ld.w	$r13,$r22,-68(0xfbc)
+800007f4:	001031ac 	add.w	$r12,$r13,$r12
+800007f8:	00005dcd 	ext.w.b	$r13,$r14
+800007fc:	2900018d 	st.b	$r13,$r12,0
+					}
+					num /= 10;
+80000800:	28bf82ce 	ld.w	$r14,$r22,-32(0xfe0)
+80000804:	0280280d 	addi.w	$r13,$r0,10(0xa)
+80000808:	002035cc 	div.w	$r12,$r14,$r13
+8000080c:	5c0009a0 	bne	$r13,$r0,8(0x8) # 80000814 <_vsnprintf+0x200>
+80000810:	002a0007 	break	0x7
+80000814:	29bf82cc 	st.w	$r12,$r22,-32(0xfe0)
+				for (int i = digits-1; i >= 0; i--) {
+80000818:	28bf52cc 	ld.w	$r12,$r22,-44(0xfd4)
+8000081c:	02bffd8c 	addi.w	$r12,$r12,-1(0xfff)
+80000820:	29bf52cc 	st.w	$r12,$r22,-44(0xfd4)
+80000824:	28bf52cc 	ld.w	$r12,$r22,-44(0xfd4)
+80000828:	67ff8180 	bge	$r12,$r0,-128(0x3ff80) # 800007a8 <_vsnprintf+0x194>
+				}
+				pos += digits;
+8000082c:	28bf72cc 	ld.w	$r12,$r22,-36(0xfdc)
+80000830:	28bf92cd 	ld.w	$r13,$r22,-28(0xfe4)
+80000834:	001031ac 	add.w	$r12,$r13,$r12
+80000838:	29bf92cc 	st.w	$r12,$r22,-28(0xfe4)
+				longarg = 0;
+8000083c:	29bfa2c0 	st.w	$r0,$r22,-24(0xfe8)
+				format = 0;
+80000840:	29bfb2c0 	st.w	$r0,$r22,-20(0xfec)
+				break;
+80000844:	50024000 	b	576(0x240) # 80000a84 <_vsnprintf+0x470>
+			}
+			case 's': {
+				const char* s2 = va_arg(vl, const char*);
+80000848:	28bec2cc 	ld.w	$r12,$r22,-80(0xfb0)
+8000084c:	0280118d 	addi.w	$r13,$r12,4(0x4)
+80000850:	29bec2cd 	st.w	$r13,$r22,-80(0xfb0)
+80000854:	2880018c 	ld.w	$r12,$r12,0
+80000858:	29bf42cc 	st.w	$r12,$r22,-48(0xfd0)
+				while (*s2) {
+8000085c:	50004800 	b	72(0x48) # 800008a4 <_vsnprintf+0x290>
+					if (out && pos < n) {
+80000860:	28bef2cc 	ld.w	$r12,$r22,-68(0xfbc)
+80000864:	40002980 	beqz	$r12,40(0x28) # 8000088c <_vsnprintf+0x278>
+80000868:	28bf92cd 	ld.w	$r13,$r22,-28(0xfe4)
+8000086c:	28bee2cc 	ld.w	$r12,$r22,-72(0xfb8)
+80000870:	6c001dac 	bgeu	$r13,$r12,28(0x1c) # 8000088c <_vsnprintf+0x278>
+						out[pos] = *s2;
+80000874:	28bef2cd 	ld.w	$r13,$r22,-68(0xfbc)
+80000878:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+8000087c:	001031ac 	add.w	$r12,$r13,$r12
+80000880:	28bf42cd 	ld.w	$r13,$r22,-48(0xfd0)
+80000884:	280001ad 	ld.b	$r13,$r13,0
+80000888:	2900018d 	st.b	$r13,$r12,0
+					}
+					pos++;
+8000088c:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+80000890:	0280058c 	addi.w	$r12,$r12,1(0x1)
+80000894:	29bf92cc 	st.w	$r12,$r22,-28(0xfe4)
+					s2++;
+80000898:	28bf42cc 	ld.w	$r12,$r22,-48(0xfd0)
+8000089c:	0280058c 	addi.w	$r12,$r12,1(0x1)
+800008a0:	29bf42cc 	st.w	$r12,$r22,-48(0xfd0)
+				while (*s2) {
+800008a4:	28bf42cc 	ld.w	$r12,$r22,-48(0xfd0)
+800008a8:	2800018c 	ld.b	$r12,$r12,0
+800008ac:	47ffb59f 	bnez	$r12,-76(0x7fffb4) # 80000860 <_vsnprintf+0x24c>
+				}
+				longarg = 0;
+800008b0:	29bfa2c0 	st.w	$r0,$r22,-24(0xfe8)
+				format = 0;
+800008b4:	29bfb2c0 	st.w	$r0,$r22,-20(0xfec)
+				break;
+800008b8:	5001cc00 	b	460(0x1cc) # 80000a84 <_vsnprintf+0x470>
+			}
+			case 'p': {
+				longarg = 1;
+800008bc:	0280040c 	addi.w	$r12,$r0,1(0x1)
+800008c0:	29bfa2cc 	st.w	$r12,$r22,-24(0xfe8)
+				if (out && pos < n) {
+800008c4:	28bef2cc 	ld.w	$r12,$r22,-68(0xfbc)
+800008c8:	40002580 	beqz	$r12,36(0x24) # 800008ec <_vsnprintf+0x2d8>
+800008cc:	28bf92cd 	ld.w	$r13,$r22,-28(0xfe4)
+800008d0:	28bee2cc 	ld.w	$r12,$r22,-72(0xfb8)
+800008d4:	6c0019ac 	bgeu	$r13,$r12,24(0x18) # 800008ec <_vsnprintf+0x2d8>
+					out[pos] = '0';
+800008d8:	28bef2cd 	ld.w	$r13,$r22,-68(0xfbc)
+800008dc:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+800008e0:	001031ac 	add.w	$r12,$r13,$r12
+800008e4:	0280c00d 	addi.w	$r13,$r0,48(0x30)
+800008e8:	2900018d 	st.b	$r13,$r12,0
+				}
+				pos++;
+800008ec:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+800008f0:	0280058c 	addi.w	$r12,$r12,1(0x1)
+800008f4:	29bf92cc 	st.w	$r12,$r22,-28(0xfe4)
+				if (out && pos < n) {
+800008f8:	28bef2cc 	ld.w	$r12,$r22,-68(0xfbc)
+800008fc:	40002580 	beqz	$r12,36(0x24) # 80000920 <_vsnprintf+0x30c>
+80000900:	28bf92cd 	ld.w	$r13,$r22,-28(0xfe4)
+80000904:	28bee2cc 	ld.w	$r12,$r22,-72(0xfb8)
+80000908:	6c0019ac 	bgeu	$r13,$r12,24(0x18) # 80000920 <_vsnprintf+0x30c>
+					out[pos] = 'x';
+8000090c:	28bef2cd 	ld.w	$r13,$r22,-68(0xfbc)
+80000910:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+80000914:	001031ac 	add.w	$r12,$r13,$r12
+80000918:	0281e00d 	addi.w	$r13,$r0,120(0x78)
+8000091c:	2900018d 	st.b	$r13,$r12,0
+				}
+				pos++;
+80000920:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+80000924:	0280058c 	addi.w	$r12,$r12,1(0x1)
+80000928:	29bf92cc 	st.w	$r12,$r22,-28(0xfe4)
+			}
+			case 'x': {
+				long num = longarg ? va_arg(vl, long) : va_arg(vl, int);
+8000092c:	28bfa2cc 	ld.w	$r12,$r22,-24(0xfe8)
+80000930:	40001980 	beqz	$r12,24(0x18) # 80000948 <_vsnprintf+0x334>
+80000934:	28bec2cc 	ld.w	$r12,$r22,-80(0xfb0)
+80000938:	0280118d 	addi.w	$r13,$r12,4(0x4)
+8000093c:	29bec2cd 	st.w	$r13,$r22,-80(0xfb0)
+80000940:	2880018c 	ld.w	$r12,$r12,0
+80000944:	50001400 	b	20(0x14) # 80000958 <_vsnprintf+0x344>
+80000948:	28bec2cc 	ld.w	$r12,$r22,-80(0xfb0)
+8000094c:	0280118d 	addi.w	$r13,$r12,4(0x4)
+80000950:	29bec2cd 	st.w	$r13,$r22,-80(0xfb0)
+80000954:	2880018c 	ld.w	$r12,$r12,0
+80000958:	29bf22cc 	st.w	$r12,$r22,-56(0xfc8)
+				int hexdigits = 2*(longarg ? sizeof(long) : sizeof(int))-1;
+8000095c:	02801c0c 	addi.w	$r12,$r0,7(0x7)
+80000960:	29bf12cc 	st.w	$r12,$r22,-60(0xfc4)
+				for(int i = hexdigits; i >= 0; i--) {
+80000964:	28bf12cc 	ld.w	$r12,$r22,-60(0xfc4)
+80000968:	29bf32cc 	st.w	$r12,$r22,-52(0xfcc)
+8000096c:	50009000 	b	144(0x90) # 800009fc <_vsnprintf+0x3e8>
+					int d = (num >> (4*i)) & 0xF;
+80000970:	28bf32cc 	ld.w	$r12,$r22,-52(0xfcc)
+80000974:	0040898c 	slli.w	$r12,$r12,0x2
+80000978:	28bf22cd 	ld.w	$r13,$r22,-56(0xfc8)
+8000097c:	001831ac 	sra.w	$r12,$r13,$r12
+80000980:	03403d8c 	andi	$r12,$r12,0xf
+80000984:	29bf02cc 	st.w	$r12,$r22,-64(0xfc0)
+					if (out && pos < n) {
+80000988:	28bef2cc 	ld.w	$r12,$r22,-68(0xfbc)
+8000098c:	40005980 	beqz	$r12,88(0x58) # 800009e4 <_vsnprintf+0x3d0>
+80000990:	28bf92cd 	ld.w	$r13,$r22,-28(0xfe4)
+80000994:	28bee2cc 	ld.w	$r12,$r22,-72(0xfb8)
+80000998:	6c004dac 	bgeu	$r13,$r12,76(0x4c) # 800009e4 <_vsnprintf+0x3d0>
+						out[pos] = (d < 10 ? '0'+d : 'a'+d-10);
+8000099c:	28bf02cd 	ld.w	$r13,$r22,-64(0xfc0)
+800009a0:	0280240c 	addi.w	$r12,$r0,9(0x9)
+800009a4:	60001d8d 	blt	$r12,$r13,28(0x1c) # 800009c0 <_vsnprintf+0x3ac>
+800009a8:	28bf02cc 	ld.w	$r12,$r22,-64(0xfc0)
+800009ac:	0067818c 	bstrpick.w	$r12,$r12,0x7,0x0
+800009b0:	0280c18c 	addi.w	$r12,$r12,48(0x30)
+800009b4:	0067818c 	bstrpick.w	$r12,$r12,0x7,0x0
+800009b8:	00005d8c 	ext.w.b	$r12,$r12
+800009bc:	50001800 	b	24(0x18) # 800009d4 <_vsnprintf+0x3c0>
+800009c0:	28bf02cc 	ld.w	$r12,$r22,-64(0xfc0)
+800009c4:	0067818c 	bstrpick.w	$r12,$r12,0x7,0x0
+800009c8:	02815d8c 	addi.w	$r12,$r12,87(0x57)
+800009cc:	0067818c 	bstrpick.w	$r12,$r12,0x7,0x0
+800009d0:	00005d8c 	ext.w.b	$r12,$r12
+800009d4:	28bef2ce 	ld.w	$r14,$r22,-68(0xfbc)
+800009d8:	28bf92cd 	ld.w	$r13,$r22,-28(0xfe4)
+800009dc:	001035cd 	add.w	$r13,$r14,$r13
+800009e0:	290001ac 	st.b	$r12,$r13,0
+					}
+					pos++;
+800009e4:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+800009e8:	0280058c 	addi.w	$r12,$r12,1(0x1)
+800009ec:	29bf92cc 	st.w	$r12,$r22,-28(0xfe4)
+				for(int i = hexdigits; i >= 0; i--) {
+800009f0:	28bf32cc 	ld.w	$r12,$r22,-52(0xfcc)
+800009f4:	02bffd8c 	addi.w	$r12,$r12,-1(0xfff)
+800009f8:	29bf32cc 	st.w	$r12,$r22,-52(0xfcc)
+800009fc:	28bf32cc 	ld.w	$r12,$r22,-52(0xfcc)
+80000a00:	67ff7180 	bge	$r12,$r0,-144(0x3ff70) # 80000970 <_vsnprintf+0x35c>
+				}
+				longarg = 0;
+80000a04:	29bfa2c0 	st.w	$r0,$r22,-24(0xfe8)
+				format = 0;
+80000a08:	29bfb2c0 	st.w	$r0,$r22,-20(0xfec)
+				break;
+80000a0c:	50007800 	b	120(0x78) # 80000a84 <_vsnprintf+0x470>
+			}
+			default:
+				uart_puts("error: unknown format\n");
+80000a10:	1c000004 	pcaddu12i	$r4,0
+80000a14:	028b9084 	addi.w	$r4,$r4,740(0x2e4)
+80000a18:	57fbafff 	bl	-1108(0xffffbac) # 800005c4 <uart_puts>
+				break;
+80000a1c:	03400000 	andi	$r0,$r0,0x0
+80000a20:	50006400 	b	100(0x64) # 80000a84 <_vsnprintf+0x470>
+			// }
+			// default:
+			// 	uart_puts("error: unknown format\n");
+			// 	break;
+			// }
+		} else if (*s == '%') {
+80000a24:	28bed2cc 	ld.w	$r12,$r22,-76(0xfb4)
+80000a28:	2800018d 	ld.b	$r13,$r12,0
+80000a2c:	0280940c 	addi.w	$r12,$r0,37(0x25)
+80000a30:	5c001dac 	bne	$r13,$r12,28(0x1c) # 80000a4c <_vsnprintf+0x438>
+			format = 1;
+80000a34:	0280040c 	addi.w	$r12,$r0,1(0x1)
+80000a38:	29bfb2cc 	st.w	$r12,$r22,-20(0xfec)
+			uart_puts("get %% here\n");
+80000a3c:	1c000004 	pcaddu12i	$r4,0
+80000a40:	028b4084 	addi.w	$r4,$r4,720(0x2d0)
+80000a44:	57fb83ff 	bl	-1152(0xffffb80) # 800005c4 <uart_puts>
+80000a48:	50003c00 	b	60(0x3c) # 80000a84 <_vsnprintf+0x470>
+		} else {
+			if (out && pos < n) {
+80000a4c:	28bef2cc 	ld.w	$r12,$r22,-68(0xfbc)
+80000a50:	40002980 	beqz	$r12,40(0x28) # 80000a78 <_vsnprintf+0x464>
+80000a54:	28bf92cd 	ld.w	$r13,$r22,-28(0xfe4)
+80000a58:	28bee2cc 	ld.w	$r12,$r22,-72(0xfb8)
+80000a5c:	6c001dac 	bgeu	$r13,$r12,28(0x1c) # 80000a78 <_vsnprintf+0x464>
+				out[pos] = *s;
+80000a60:	28bef2cd 	ld.w	$r13,$r22,-68(0xfbc)
+80000a64:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+80000a68:	001031ac 	add.w	$r12,$r13,$r12
+80000a6c:	28bed2cd 	ld.w	$r13,$r22,-76(0xfb4)
+80000a70:	280001ad 	ld.b	$r13,$r13,0
+80000a74:	2900018d 	st.b	$r13,$r12,0
+			}
+			pos++;
+80000a78:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+80000a7c:	0280058c 	addi.w	$r12,$r12,1(0x1)
+80000a80:	29bf92cc 	st.w	$r12,$r22,-28(0xfe4)
+	for (; *s; s++) {
+80000a84:	28bed2cc 	ld.w	$r12,$r22,-76(0xfb4)
+80000a88:	0280058c 	addi.w	$r12,$r12,1(0x1)
+80000a8c:	29bed2cc 	st.w	$r12,$r22,-76(0xfb4)
+80000a90:	28bed2cc 	ld.w	$r12,$r22,-76(0xfb4)
+80000a94:	2800018c 	ld.b	$r12,$r12,0
+80000a98:	47fbad9f 	bnez	$r12,-1108(0x7ffbac) # 80000644 <_vsnprintf+0x30>
+		}
+    	}
+	uart_puts("stop here\n");
+80000a9c:	1c000004 	pcaddu12i	$r4,0
+80000aa0:	028a0084 	addi.w	$r4,$r4,640(0x280)
+80000aa4:	57fb23ff 	bl	-1248(0xffffb20) # 800005c4 <uart_puts>
+	if (out && pos < n) {
+80000aa8:	28bef2cc 	ld.w	$r12,$r22,-68(0xfbc)
+80000aac:	40002580 	beqz	$r12,36(0x24) # 80000ad0 <_vsnprintf+0x4bc>
+80000ab0:	28bf92cd 	ld.w	$r13,$r22,-28(0xfe4)
+80000ab4:	28bee2cc 	ld.w	$r12,$r22,-72(0xfb8)
+80000ab8:	6c0019ac 	bgeu	$r13,$r12,24(0x18) # 80000ad0 <_vsnprintf+0x4bc>
+		out[pos] = 0;
+80000abc:	28bef2cd 	ld.w	$r13,$r22,-68(0xfbc)
+80000ac0:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+80000ac4:	001031ac 	add.w	$r12,$r13,$r12
+80000ac8:	29000180 	st.b	$r0,$r12,0
+80000acc:	50002800 	b	40(0x28) # 80000af4 <_vsnprintf+0x4e0>
+	} else if (out && n) {
+80000ad0:	28bef2cc 	ld.w	$r12,$r22,-68(0xfbc)
+80000ad4:	40002180 	beqz	$r12,32(0x20) # 80000af4 <_vsnprintf+0x4e0>
+80000ad8:	28bee2cc 	ld.w	$r12,$r22,-72(0xfb8)
+80000adc:	40001980 	beqz	$r12,24(0x18) # 80000af4 <_vsnprintf+0x4e0>
+		out[n-1] = 0;
+80000ae0:	28bee2cc 	ld.w	$r12,$r22,-72(0xfb8)
+80000ae4:	02bffd8c 	addi.w	$r12,$r12,-1(0xfff)
+80000ae8:	28bef2cd 	ld.w	$r13,$r22,-68(0xfbc)
+80000aec:	001031ac 	add.w	$r12,$r13,$r12
+80000af0:	29000180 	st.b	$r0,$r12,0
+	}
+	return pos;
+80000af4:	28bf92cc 	ld.w	$r12,$r22,-28(0xfe4)
+}
+80000af8:	00150184 	move	$r4,$r12
+80000afc:	28813061 	ld.w	$r1,$r3,76(0x4c)
+80000b00:	28812076 	ld.w	$r22,$r3,72(0x48)
+80000b04:	02814063 	addi.w	$r3,$r3,80(0x50)
+80000b08:	4c000020 	jirl	$r0,$r1,0
+
+80000b0c <_vprintf>:
+
+static char out_buf[1000]; // buffer for _vprintf()
+
+static int _vprintf(const char* s, va_list vl)
+{
+80000b0c:	02bf4063 	addi.w	$r3,$r3,-48(0xfd0)
+80000b10:	2980b061 	st.w	$r1,$r3,44(0x2c)
+80000b14:	2980a076 	st.w	$r22,$r3,40(0x28)
+80000b18:	0280c076 	addi.w	$r22,$r3,48(0x30)
+80000b1c:	29bf72c4 	st.w	$r4,$r22,-36(0xfdc)
+80000b20:	29bf62c5 	st.w	$r5,$r22,-40(0xfd8)
+	// int res = 0;
+	if(*s == '%'){
+80000b24:	28bf72cc 	ld.w	$r12,$r22,-36(0xfdc)
+80000b28:	2800018d 	ld.b	$r13,$r12,0
+80000b2c:	0280940c 	addi.w	$r12,$r0,37(0x25)
+80000b30:	5c0015ac 	bne	$r13,$r12,20(0x14) # 80000b44 <_vprintf+0x38>
+		uart_puts("_vprintf1_%%d: \n");
+80000b34:	1c000004 	pcaddu12i	$r4,0
+80000b38:	02893084 	addi.w	$r4,$r4,588(0x24c)
+80000b3c:	57fa8bff 	bl	-1400(0xffffa88) # 800005c4 <uart_puts>
+80000b40:	50001000 	b	16(0x10) # 80000b50 <_vprintf+0x44>
+	}
+	else{
+		uart_puts("_vprintf1_hello: \n");
+80000b44:	1c000004 	pcaddu12i	$r4,0
+80000b48:	02894084 	addi.w	$r4,$r4,592(0x250)
+80000b4c:	57fa7bff 	bl	-1416(0xffffa78) # 800005c4 <uart_puts>
+	}
+	int res = _vsnprintf(NULL, -1, s, vl);
+80000b50:	28bf62c7 	ld.w	$r7,$r22,-40(0xfd8)
+80000b54:	28bf72c6 	ld.w	$r6,$r22,-36(0xfdc)
+80000b58:	02bffc05 	addi.w	$r5,$r0,-1(0xfff)
+80000b5c:	00150004 	move	$r4,$r0
+80000b60:	57fab7ff 	bl	-1356(0xffffab4) # 80000614 <_vsnprintf>
+80000b64:	29bfb2c4 	st.w	$r4,$r22,-20(0xfec)
+	if(*s == '%'){
+80000b68:	28bf72cc 	ld.w	$r12,$r22,-36(0xfdc)
+80000b6c:	2800018d 	ld.b	$r13,$r12,0
+80000b70:	0280940c 	addi.w	$r12,$r0,37(0x25)
+80000b74:	5c0015ac 	bne	$r13,$r12,20(0x14) # 80000b88 <_vprintf+0x7c>
+		uart_puts("_vprintf2_%%d: \n");
+80000b78:	1c000004 	pcaddu12i	$r4,0
+80000b7c:	0288c084 	addi.w	$r4,$r4,560(0x230)
+80000b80:	57fa47ff 	bl	-1468(0xffffa44) # 800005c4 <uart_puts>
+80000b84:	50001000 	b	16(0x10) # 80000b94 <_vprintf+0x88>
+	}
+	else{
+		uart_puts("_vprintf2_hello: \n");
+80000b88:	1c000004 	pcaddu12i	$r4,0
+80000b8c:	0288d084 	addi.w	$r4,$r4,564(0x234)
+80000b90:	57fa37ff 	bl	-1484(0xffffa34) # 800005c4 <uart_puts>
+	}
+	if (res+1 >= sizeof(out_buf)) {
+80000b94:	28bfb2cc 	ld.w	$r12,$r22,-20(0xfec)
+80000b98:	0280058c 	addi.w	$r12,$r12,1(0x1)
+80000b9c:	0015018d 	move	$r13,$r12
+80000ba0:	028f9c0c 	addi.w	$r12,$r0,999(0x3e7)
+80000ba4:	6c00158d 	bgeu	$r12,$r13,20(0x14) # 80000bb8 <_vprintf+0xac>
+		uart_puts("error: output string size overflow\n");
+80000ba8:	1c000004 	pcaddu12i	$r4,0
+80000bac:	0288a084 	addi.w	$r4,$r4,552(0x228)
+80000bb0:	57fa17ff 	bl	-1516(0xffffa14) # 800005c4 <uart_puts>
+		while(1) {}
+80000bb4:	50000000 	b	0 # 80000bb4 <_vprintf+0xa8>
+	}
+	_vsnprintf(out_buf, res + 1, s, vl);
+80000bb8:	28bfb2cc 	ld.w	$r12,$r22,-20(0xfec)
+80000bbc:	0280058c 	addi.w	$r12,$r12,1(0x1)
+80000bc0:	28bf62c7 	ld.w	$r7,$r22,-40(0xfd8)
+80000bc4:	28bf72c6 	ld.w	$r6,$r22,-36(0xfdc)
+80000bc8:	00150185 	move	$r5,$r12
+80000bcc:	1c000004 	pcaddu12i	$r4,0
+80000bd0:	02912084 	addi.w	$r4,$r4,1096(0x448)
+80000bd4:	57fa43ff 	bl	-1472(0xffffa40) # 80000614 <_vsnprintf>
+	uart_puts(out_buf);
+80000bd8:	1c000004 	pcaddu12i	$r4,0
+80000bdc:	0290f084 	addi.w	$r4,$r4,1084(0x43c)
+80000be0:	57f9e7ff 	bl	-1564(0xffff9e4) # 800005c4 <uart_puts>
+	return res;
+80000be4:	28bfb2cc 	ld.w	$r12,$r22,-20(0xfec)
+}
+80000be8:	00150184 	move	$r4,$r12
+80000bec:	2880b061 	ld.w	$r1,$r3,44(0x2c)
+80000bf0:	2880a076 	ld.w	$r22,$r3,40(0x28)
+80000bf4:	0280c063 	addi.w	$r3,$r3,48(0x30)
+80000bf8:	4c000020 	jirl	$r0,$r1,0
+
+80000bfc <printf>:
+
+int printf(const char* s, ...)
+{
+80000bfc:	02bec063 	addi.w	$r3,$r3,-80(0xfb0)
+80000c00:	2980b061 	st.w	$r1,$r3,44(0x2c)
+80000c04:	2980a076 	st.w	$r22,$r3,40(0x28)
+80000c08:	0280c076 	addi.w	$r22,$r3,48(0x30)
+80000c0c:	29bf72c4 	st.w	$r4,$r22,-36(0xfdc)
+80000c10:	298012c5 	st.w	$r5,$r22,4(0x4)
+80000c14:	298022c6 	st.w	$r6,$r22,8(0x8)
+80000c18:	298032c7 	st.w	$r7,$r22,12(0xc)
+80000c1c:	298042c8 	st.w	$r8,$r22,16(0x10)
+80000c20:	298052c9 	st.w	$r9,$r22,20(0x14)
+80000c24:	298062ca 	st.w	$r10,$r22,24(0x18)
+80000c28:	298072cb 	st.w	$r11,$r22,28(0x1c)
+	int res = 0;
+80000c2c:	29bfb2c0 	st.w	$r0,$r22,-20(0xfec)
+	va_list vl;
+	uart_puts(s);
+80000c30:	28bf72c4 	ld.w	$r4,$r22,-36(0xfdc)
+80000c34:	57f993ff 	bl	-1648(0xffff990) # 800005c4 <uart_puts>
+	va_start(vl, s);
+80000c38:	028082cc 	addi.w	$r12,$r22,32(0x20)
+80000c3c:	02bf918c 	addi.w	$r12,$r12,-28(0xfe4)
+80000c40:	29bfa2cc 	st.w	$r12,$r22,-24(0xfe8)
+	res = _vprintf(s, vl);
+80000c44:	28bfa2cc 	ld.w	$r12,$r22,-24(0xfe8)
+80000c48:	00150185 	move	$r5,$r12
+80000c4c:	28bf72c4 	ld.w	$r4,$r22,-36(0xfdc)
+80000c50:	57febfff 	bl	-324(0xffffebc) # 80000b0c <_vprintf>
+80000c54:	29bfb2c4 	st.w	$r4,$r22,-20(0xfec)
+	va_end(vl);
+	// uart_puts(s);
+	// uart_puts("\n\n");
+	return res;
+80000c58:	28bfb2cc 	ld.w	$r12,$r22,-20(0xfec)
+}
+80000c5c:	00150184 	move	$r4,$r12
+80000c60:	2880b061 	ld.w	$r1,$r3,44(0x2c)
+80000c64:	2880a076 	ld.w	$r22,$r3,40(0x28)
+80000c68:	02814063 	addi.w	$r3,$r3,80(0x50)
+80000c6c:	4c000020 	jirl	$r0,$r1,0
+
+80000c70 <panic>:
+
+void panic(char *s)
+{
+80000c70:	02bf8063 	addi.w	$r3,$r3,-32(0xfe0)
+80000c74:	29807061 	st.w	$r1,$r3,28(0x1c)
+80000c78:	29806076 	st.w	$r22,$r3,24(0x18)
+80000c7c:	02808076 	addi.w	$r22,$r3,32(0x20)
+80000c80:	29bfb2c4 	st.w	$r4,$r22,-20(0xfec)
+	printf("panic: ");
+80000c84:	1c000004 	pcaddu12i	$r4,0
+80000c88:	0285c084 	addi.w	$r4,$r4,368(0x170)
+80000c8c:	57ff73ff 	bl	-144(0xfffff70) # 80000bfc <printf>
+	printf(s);
+80000c90:	28bfb2c4 	ld.w	$r4,$r22,-20(0xfec)
+80000c94:	57ff6bff 	bl	-152(0xfffff68) # 80000bfc <printf>
+	printf("\n");
+80000c98:	1c000004 	pcaddu12i	$r4,0
+80000c9c:	02859084 	addi.w	$r4,$r4,356(0x164)
+80000ca0:	57ff5fff 	bl	-164(0xfffff5c) # 80000bfc <printf>
+	while(1){};
+80000ca4:	50000000 	b	0 # 80000ca4 <panic+0x34>

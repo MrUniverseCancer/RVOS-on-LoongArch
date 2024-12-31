@@ -8,7 +8,7 @@ DEFS +=
 
 CROSS_COMPILE = ../../loongson-gnu-toolchain-8.3-x86_64-loongarch32r-linux-gnusf-v2.0/bin/loongarch32r-linux-gnusf-
 # CROSS_COMPILE = ../../loongson-gnu-toolchain-8.3-x86_64-loongarch64-linux-gnu-rc1.6/bin/loongarch64-linux-gnu-
-CFLAGS += -nostdlib -O2 -g3 -Wall -march=loongarch32 -mabi=ilp32d -ffreestanding -fno-common -I. -fno-stack-protector -fno-pie -no-pie
+CFLAGS += -nostdlib -O3 -g3 -Wall -march=loongarch32 -mabi=ilp32d -ffreestanding -fno-common -I. -fno-pie -no-pie -fno-builtin
 # CFLAGS += -nostdlib -O2 -g3 -Wall -march=la464 -mabi=lp64d -ffreestanding -fno-common -I. -fno-stack-protector -fno-pie -no-pie
 
 QEMU = ../../la32r-QEMU-x86_64-ubuntu-22.04/qemu-system-loongarch32
@@ -78,7 +78,8 @@ debug: all
 
 .PHONY : code
 code: all
-	@${OBJDUMP} -S ${ELF} | less
+	@${OBJDUMP} -S ${ELF} > result1.txt
+	@${OBJDUMP} -d -s ${ELF} > result.txt
 
 .PHONY : clean
 clean:

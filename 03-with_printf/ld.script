@@ -1,5 +1,5 @@
 OUTPUT_ARCH( "loongarch" )
-ENTRY( start_kernel )
+ENTRY( _start )
 
 SECTIONS
 {
@@ -11,14 +11,14 @@ SECTIONS
   }
 
   .rodata : {
-    . = ALIGN(16);
+    . = ALIGN(32);
     *(.srodata .srodata.*)
-    . = ALIGN(16);
+    . = ALIGN(32);
     *(.rodata .rodata.*)
   }
 
   .data : {
-    . = ALIGN(16);
+    . = ALIGN(4096);
     *(.sdata .sdata.*) 
     . = ALIGN(16);
     *(.data .data.*)

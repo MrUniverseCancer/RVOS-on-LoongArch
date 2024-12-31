@@ -1,12 +1,13 @@
-#include "platform.h"
+
 
 	# size of each hart's stack is 1024 bytes
 
 	.data
+	.align 4
 STACK_SIZE:
 	.word 1024
-stacks:
-	.space 1024
+	.align 4
+
 
 	.global	_start
 
@@ -19,9 +20,14 @@ _start:
 	add.w   $sp, $t0, $t1
 					# set the initial stack pointer
 					# to the end of the first stack space
+	
+	# la.local $t0, start_kernel
+	# jr $t0
+	b start_kernel
 
-	la.local $t0, start_kernel
-	jr $t0
+stacks:
+	.space 1024
+	.align 4
 
 
 	.end				# End of file
