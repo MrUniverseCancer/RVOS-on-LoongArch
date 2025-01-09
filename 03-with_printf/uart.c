@@ -104,6 +104,7 @@ void uart_init()
 	uart_write_reg(LCR, lcr | (1 << 7));
 	uart_write_reg(DLL, 0x03);
 	uart_write_reg(DLM, 0x00);
+	uart_write_reg(LCR, lcr & ~(1 << 7));
 
 	/*
 	 * Continue setting the asynchronous data communication format.
